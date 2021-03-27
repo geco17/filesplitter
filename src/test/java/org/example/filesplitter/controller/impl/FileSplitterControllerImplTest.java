@@ -7,6 +7,7 @@ import org.example.filesplitter.service.FileValidationService;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -31,7 +32,7 @@ public class FileSplitterControllerImplTest {
     @Test
     public void testSourceFileIsNotValid() {
         when(fileValidationService.validSrc(src)).thenReturn(false);
-        int actual = controller.split(src, dest, 100);
+        int actual = controller.split(src, dest, 100, new AtomicBoolean(false));
         assertEquals(1, actual);
     }
 
@@ -42,7 +43,7 @@ public class FileSplitterControllerImplTest {
     public void testDestFileIsFile() {
         when(fileValidationService.validSrc(src)).thenReturn(true);
         when(fileValidationService.validDest(dest)).thenReturn(false);
-        int actual = controller.split(src, dest, 100);
+        int actual = controller.split(src, dest, 100, new AtomicBoolean(false));
         assertEquals(2, actual);
     }
 
@@ -54,7 +55,7 @@ public class FileSplitterControllerImplTest {
     public void testChunkSizeInvalid() {
         when(fileValidationService.validSrc(src)).thenReturn(true);
         when(fileValidationService.validDest(dest)).thenReturn(true);
-        int actual = controller.split(src, dest, -100);
+        int actual = controller.split(src, dest, -100, new AtomicBoolean(false));
         assertEquals(3, actual);
     }
 
@@ -69,8 +70,9 @@ public class FileSplitterControllerImplTest {
         when(fileValidationService.validDest(dest)).thenReturn(true);
         int chunkSize = 100;
         when(fileValidationService.validChunkSize(chunkSize)).thenReturn(true);
-        doThrow(SplitException.class).when(fileSplitterService).split(src, dest, chunkSize);
-        int actual = controller.split(src, dest, chunkSize);
+        AtomicBoolean interrupted = new AtomicBoolean(false);
+        doThrow(SplitException.class).when(fileSplitterService).split(src, dest, chunkSize, interrupted);
+        int actual = controller.split(src, dest, chunkSize, interrupted);
         assertEquals(4, actual);
     }
 
@@ -83,7 +85,7 @@ public class FileSplitterControllerImplTest {
         when(fileValidationService.validDest(dest)).thenReturn(true);
         int chunkSize = 100;
         when(fileValidationService.validChunkSize(chunkSize)).thenReturn(true);
-        int actual = controller.split(src, dest, chunkSize);
+        int actual = controller.split(src, dest, chunkSize, new AtomicBoolean(false));
         assertEquals(0, actual);
     }
 

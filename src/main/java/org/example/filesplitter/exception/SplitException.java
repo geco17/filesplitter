@@ -2,16 +2,13 @@ package org.example.filesplitter.exception;
 
 public class SplitException extends Exception {
 
-    public SplitException(Exception e) {
+    /**
+     * A wrapper for exceptions raised during splitting.
+     *
+     * @param e The base exception.
+     */
+    public SplitException(final Exception e) {
         super(e);
-    }
-
-    public SplitException(String message) {
-        super(message);
-    }
-
-    public SplitException(String message, Exception e) {
-        super(message, e);
     }
 
 }

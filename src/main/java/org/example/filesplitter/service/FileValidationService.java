@@ -10,7 +10,7 @@ public interface FileValidationService {
      * @param path The path to check.
      * @return true if the source is a file and exists, false otherwise.
      */
-    boolean validSrc(final Path path);
+    boolean validSrc(Path path);
 
     /**
      * Is this path a valid destination directory?
@@ -18,7 +18,7 @@ public interface FileValidationService {
      * @param path The path to check.
      * @return true if the source is a directory and exists, false otherwise.
      */
-    boolean validDest(final Path path);
+    boolean validDest(Path path);
 
     /**
      * Is the chunk size (in bytes), the size of the split, valid?

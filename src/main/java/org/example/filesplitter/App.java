@@ -1,38 +1,47 @@
 package org.example.filesplitter;
 
-import org.example.filesplitter.controller.FileSplitterController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import org.example.filesplitter.controller.impl.FileSplitterControllerImpl;
+import org.example.filesplitter.gui.FileSplitterGUIController;
 import org.example.filesplitter.service.impl.FileSplitterServiceImpl;
 import org.example.filesplitter.service.impl.FileValidationServiceImpl;
 
-import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.IOException;
 
-public class App {
+public class App extends Application {
 
-    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
+    /**
+     * Start the file splitter app.
+     * @param stage The main stage.
+     * @throws IOException
+     */
+    @Override
+    public void start(final Stage stage) throws IOException {
+        stage.setTitle("File splitter");
+        FXMLLoader loader = new FXMLLoader(getClass()
+                .getResource("/main.fxml"));
+        final int maxBufferSize = 4096;
+        loader.setControllerFactory(clazz -> new FileSplitterGUIController(
+                stage,
+                new FileSplitterControllerImpl(
+                        new FileValidationServiceImpl(),
+                        new FileSplitterServiceImpl(maxBufferSize))));
+        Parent root = loader.load();
+        stage.setScene(new Scene(root));
+        stage.setResizable(false);
+        stage.show();
+    }
 
-    public static void main(String[] args) {
-        final Path src;
-        final Path dest;
-        final int chunkSize;
-        final int bufferSize;
-        try {
-            src = Path.of(args[0]);
-            dest = Path.of(args[1]);
-            chunkSize = Integer.parseInt(args[2]);
-            bufferSize = Integer.parseInt(args[3]);
-        }  catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Illegal arguments specified");
-            LOGGER.log(Level.INFO, "Invoke with source path, destination path, chunk size, buffer size");
-            return;
-        }
-        FileSplitterController controller = new FileSplitterControllerImpl(
-                new FileValidationServiceImpl(),
-                new FileSplitterServiceImpl(bufferSize));
-        int result = controller.split(src, dest, chunkSize);
-        LOGGER.log(Level.INFO, "EXit code: " + result);
+    /**
+     * File splitter app entry point.
+     * @param args The application arguments.
+     */
+    public static void main(final String[] args) {
+        launch();
     }
 
 }

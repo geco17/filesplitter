@@ -7,16 +7,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class FileSplitterServiceImplTest {
 
@@ -60,7 +58,7 @@ public class FileSplitterServiceImplTest {
     @Test
     public void testSuccessWithChunkSizeEqualToMaxBuffer() throws SplitException, IOException {
         Path dest = Files.createDirectory(tempDir.resolve("out1"));
-        service.split(tempFile, dest, 10);
+        service.split(tempFile, dest, 10, new AtomicBoolean(false));
         List<Path> paths = Files.list(dest).collect(Collectors.toList());
         assertEquals(1, paths.size());
         byte[] content = Files.readAllBytes(paths.get(0));
@@ -70,7 +68,7 @@ public class FileSplitterServiceImplTest {
     @Test
     public void testSuccessWithChunkSizeGreaterThanMaxBufferAndContentLengthMaxBuffer() throws SplitException, IOException {
         Path dest = Files.createDirectory(tempDir.resolve("out2"));
-        service.split(tempFile, dest, 100);
+        service.split(tempFile, dest, 100, new AtomicBoolean(false));
         List<Path> paths = Files.list(dest).collect(Collectors.toList());
         assertEquals(1, paths.size());
         byte[] content = Files.readAllBytes(paths.get(0));
@@ -81,7 +79,7 @@ public class FileSplitterServiceImplTest {
     public void testSuccessWithChunkSizeGreaterThanMaxBufferAndContentLengthMoreThanMaxBuffer() throws SplitException, IOException {
         Path dest = Files.createDirectory(tempDir.resolve("out3"));
         FileSplitterService service = new FileSplitterServiceImpl(2);
-        service.split(tempFile, dest, 100);
+        service.split(tempFile, dest, 100, new AtomicBoolean(false));
         List<Path> paths = Files.list(dest).collect(Collectors.toList());
         assertEquals(1, paths.size());
         byte[] content = Files.readAllBytes(paths.get(0));
@@ -92,7 +90,7 @@ public class FileSplitterServiceImplTest {
     public void testSuccessWithChunkSizeGreaterThanMaxBufferAndContentLengthLessThanMaxBuffer() throws SplitException, IOException {
         Path dest = Files.createDirectory(tempDir.resolve("out4"));
         FileSplitterService service = new FileSplitterServiceImpl(12);
-        service.split(tempFile, dest, 100);
+        service.split(tempFile, dest, 100, new AtomicBoolean(false));
         List<Path> paths = Files.list(dest).collect(Collectors.toList());
         assertEquals(1, paths.size());
         byte[] content = Files.readAllBytes(paths.get(0));
@@ -102,7 +100,7 @@ public class FileSplitterServiceImplTest {
     @Test
     public void testSuccessWithChunkSizeLessThanMaxBuffer() throws SplitException, IOException {
         Path dest = Files.createDirectory(tempDir.resolve("out5"));
-        service.split(tempFile, dest, 2);
+        service.split(tempFile, dest, 2, new AtomicBoolean(false));
         List<Path> paths = Files.list(dest).collect(Collectors.toList());
         assertEquals(5, paths.size());
         int curChunkIndex = 0;
@@ -119,7 +117,7 @@ public class FileSplitterServiceImplTest {
     public void testCatchExceptionOnWriteFail() throws IOException {
         Path dest = Files.createDirectory(tempDir.resolve("out6"));
         try {
-            service.split(null, dest, 10);
+            service.split(null, dest, 10, new AtomicBoolean(false));
         } catch (SplitException e) {
             return;
         }
